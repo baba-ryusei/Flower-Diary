@@ -3,8 +3,8 @@ from pydantic import BaseModel, ConfigDict
 
 
 class DiaryBase(BaseModel):
-    title: str
     content: str
+    mood: str | None = None
 
 
 class DiaryCreate(DiaryBase):
@@ -12,8 +12,8 @@ class DiaryCreate(DiaryBase):
 
 
 class DiaryUpdate(BaseModel):
-    title: str | None = None
     content: str | None = None
+    mood: str | None = None
 
 
 class DiaryResponse(DiaryBase):
@@ -21,5 +21,6 @@ class DiaryResponse(DiaryBase):
     user_id: int
     created_at: datetime
     updated_at: datetime
+    flower_image: dict | None = None
 
     model_config = ConfigDict(from_attributes=True)
