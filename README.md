@@ -1,6 +1,5 @@
 # Flower Diary
 
-友達との関係を記録し、振り返ることができる日記アプリケーション
 
 ## 技術スタック
 
@@ -139,14 +138,3 @@ pnpm lint               # ESLintチェック
 - **バックエンドAPI**: http://localhost:8005/
 - **API ヘルスチェック**: http://localhost:8005/health
 
-## 環境変数
-
-### Backend (.env)
-```
-DATABASE_URL=postgresql://myuser:mypassword@localhost:5434/mydb
-```
-
-### Frontend (.env.local)
-```
-NEXT_PUBLIC_API_BASE_URL=http://localhost:8005
-```
