@@ -23,19 +23,17 @@ export default function Home() {
         </div>
         <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
           <Link
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[200px]"
-            href="/users"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-purple-600 px-5 text-white transition-colors hover:bg-purple-700 md:w-[200px]"
+            href="/user/diary"
           >
-            ユーザー一覧を見る
+            日記を見る
           </Link>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-pink-600 px-5 text-white transition-colors hover:bg-pink-700 md:w-[200px]"
+            href="/user/diary/new"
           >
-            Documentation
-          </a>
+            日記を書く
+          </Link>
         </div>
       </main>
     </div>

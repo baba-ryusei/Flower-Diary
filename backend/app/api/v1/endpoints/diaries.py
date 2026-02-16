@@ -16,16 +16,20 @@ def get_db():
         db.close()
 
 
-@router.post("", response_model=DiaryResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=DiaryResponse, status_code=status.HTTP_201_CREATED)
 async def create_diary(
     diary: DiaryCreate,
-    user_id: int,  # TODO: 認証実装後はトークンから取得
     db: Session = Depends(get_db),
 ):
     """
-    日記を作成
+    日記を作成し、画像を生成する
     """
-    # ユーザーの存在確認
+    # DiaryCreateにはuser_idが含まれている必要があるので、スキーマを修正する必要がある
+    # または一時的にハードコードする
+    # TODO: 認証実装後はトークンから取得
+
+    # ユーザーの存在確認 - 一時的にuser_id=1を使用
+    user_id = 1  # TODO: リクエストボディから取得
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(
@@ -35,8 +39,8 @@ async def create_diary(
     # 日記作成
     db_diary = Diary(
         user_id=user_id,
-        title=diary.title,
         content=diary.content,
+        mood=diary.mood,
     )
     db.add(db_diary)
     db.commit()
@@ -45,9 +49,8 @@ async def create_diary(
     return db_diary
 
 
-@router.get("", response_model=List[DiaryResponse])
+@router.get("/", response_model=List[DiaryResponse])
 async def list_diaries(
-    user_id: int,  # TODO: 認証実装後はトークンから取得
     skip: int = 0,
     limit: int = 20,
     db: Session = Depends(get_db),
@@ -55,6 +58,8 @@ async def list_diaries(
     """
     ユーザーの日記一覧を取得
     """
+    # TODO: 認証実装後はトークンから取得
+    user_id = 1
     diaries = (
         db.query(Diary)
         .filter(Diary.user_id == user_id)
@@ -69,12 +74,13 @@ async def list_diaries(
 @router.get("/{diary_id}", response_model=DiaryResponse)
 async def get_diary(
     diary_id: int,
-    user_id: int,  # TODO: 認証実装後はトークンから取得
     db: Session = Depends(get_db),
 ):
     """
     日記詳細を取得
     """
+    # TODO: 認証実装後はトークンから取得
+    user_id = 1
     diary = (
         db.query(Diary).filter(Diary.id == diary_id, Diary.user_id == user_id).first()
     )
@@ -84,19 +90,42 @@ async def get_diary(
             status_code=status.HTTP_404_NOT_FOUND, detail="日記が見つかりません"
         )
 
-    return diary
+    # flower_imageを追加
+    response = DiaryResponse(
+        id=diary.id,
+        user_id=diary.user_id,
+        content=diary.content,
+        mood=diary.mood,
+        created_at=diary.created_at,
+        updated_at=diary.updated_at,
+        flower_image=None,
+    )
+
+    if diary.flower_images:
+        # 最新の画像を取得
+        latest_image = diary.flower_images[0]
+        response.flower_image = {
+            "id": latest_image.id,
+            "diary_id": latest_image.diary_id,
+            "image_url": latest_image.image_url,
+            "prompt": latest_image.prompt,
+            "created_at": latest_image.created_at.isoformat(),
+        }
+
+    return response
 
 
 @router.put("/{diary_id}", response_model=DiaryResponse)
 async def update_diary(
     diary_id: int,
     diary_update: DiaryUpdate,
-    user_id: int,  # TODO: 認証実装後はトークンから取得
     db: Session = Depends(get_db),
 ):
     """
     日記を更新
     """
+    # TODO: 認証実装後はトークンから取得
+    user_id = 1
     diary = (
         db.query(Diary).filter(Diary.id == diary_id, Diary.user_id == user_id).first()
     )
@@ -107,10 +136,10 @@ async def update_diary(
         )
 
     # 更新
-    if diary_update.title is not None:
-        diary.title = diary_update.title
     if diary_update.content is not None:
         diary.content = diary_update.content
+    if diary_update.mood is not None:
+        diary.mood = diary_update.mood
 
     db.commit()
     db.refresh(diary)
@@ -121,12 +150,13 @@ async def update_diary(
 @router.delete("/{diary_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_diary(
     diary_id: int,
-    user_id: int,  # TODO: 認証実装後はトークンから取得
     db: Session = Depends(get_db),
 ):
     """
     日記を削除
     """
+    # TODO: 認証実装後はトークンから取得
+    user_id = 1
     diary = (
         db.query(Diary).filter(Diary.id == diary_id, Diary.user_id == user_id).first()
     )
