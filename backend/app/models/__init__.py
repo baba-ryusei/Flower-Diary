@@ -4,5 +4,7 @@ Models package
 """
 
 from app.models.user import User
+from app.models.diary import Diary
+from app.models.flower_image import FlowerImage
 
-__all__ = ["User"]
+__all__ = ["User", "Diary", "FlowerImage"]
