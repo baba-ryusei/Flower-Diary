@@ -51,9 +51,7 @@ export default function UsersPage() {
       setNewUserName("");
       fetchUsers(); // ユーザー一覧を再取得
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to create user"
-      );
+      setError(err instanceof Error ? err.message : "Failed to create user");
     }
   };
 
