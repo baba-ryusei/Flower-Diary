@@ -19,6 +19,7 @@ app.add_middleware(
 # まずは動作確認用（後でAlembicに置き換える）
 Base.metadata.create_all(bind=engine)
 
+
 def get_db():
     db = SessionLocal()
     try:
@@ -26,9 +27,11 @@ def get_db():
     finally:
         db.close()
 
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
 
 @app.post("/users")
 def create_user(name: str, db: Session = Depends(get_db)):
@@ -37,6 +40,7 @@ def create_user(name: str, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(user)
     return {"id": user.id, "name": user.name}
+
 
 @app.get("/users")
 def list_users(db: Session = Depends(get_db)):
