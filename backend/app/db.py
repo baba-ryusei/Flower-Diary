@@ -6,6 +6,10 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
+# DBなしでも起動できるようにフォールバック（一時的用）
+if not DATABASE_URL:
+    DATABASE_URL = "sqlite+pysqlite:///./local.db"
+
 engine = create_engine(DATABASE_URL)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
