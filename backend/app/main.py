@@ -5,8 +5,9 @@ from sqlalchemy.orm import Session
 
 from .db import Base, engine, SessionLocal
 from .models import User
+from .api.v1 import api_router
 
-app = FastAPI()
+app = FastAPI(title="Flower Diary API", version="1.0.0")
 
 # CORS設定
 app.add_middleware(
@@ -20,6 +21,9 @@ app.add_middleware(
 # 一時的にDBがなくても起動できるようにするため
 if os.getenv("RUN_MIGRATIONS", "false").lower() == "true":
     Base.metadata.create_all(bind=engine)
+
+# API v1ルーターを追加
+app.include_router(api_router, prefix="/api/v1")
 
 
 def get_db():
