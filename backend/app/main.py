@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -16,8 +17,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# まずは動作確認用（後でAlembicに置き換える）
-Base.metadata.create_all(bind=engine)
+# 一時的にDBがなくても起動できるようにするため
+if os.getenv("RUN_MIGRATIONS", "false").lower() == "true":
+    Base.metadata.create_all(bind=engine)
 
 
 def get_db():
