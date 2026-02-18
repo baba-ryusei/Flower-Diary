@@ -15,6 +15,10 @@ class Settings:
     # Vertex AI
     VERTEX_AI_MODEL: str = os.getenv("VERTEX_AI_MODEL", "imagegeneration@006")
 
+    # OpenAI
+    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
+    OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+
     # Database
     DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite+pysqlite:///./local.db")
 

@@ -42,8 +42,9 @@ async def generate_flower_image(
         )
 
     # プロンプト生成
-    prompt = PromptBuilder.build_flower_prompt(
-        diary_content=diary.content, diary_title=diary.title
+    prompt_builder = PromptBuilder()
+    prompt = prompt_builder.analyze_emotion_and_build_prompt(
+        diary_content=diary.content, mood=diary.mood
     )
 
     # 画像生成（Vertex AI）
