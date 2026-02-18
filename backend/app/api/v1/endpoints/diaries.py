@@ -48,6 +48,7 @@ async def create_diary(
     db.refresh(db_diary)
 
     # 画像生成
+    flower_image_data = None
     try:
         # プロンプト生成（OpenAI APIで感情分析）
         prompt_builder = PromptBuilder()
@@ -71,11 +72,27 @@ async def create_diary(
         db.commit()
         db.refresh(flower_image)
 
+        flower_image_data = {
+            "id": flower_image.id,
+            "diary_id": flower_image.diary_id,
+            "image_url": flower_image.image_url,
+            "prompt": flower_image.prompt,
+            "created_at": flower_image.created_at.isoformat(),
+        }
+
     except Exception as e:
         # 画像生成失敗してもエラーにしない（日記は保存済み）
         print(f"画像生成エラー（日記は保存されました）: {str(e)}")
 
-    return db_diary
+    return DiaryResponse(
+        id=db_diary.id,
+        user_id=db_diary.user_id,
+        content=db_diary.content,
+        mood=db_diary.mood,
+        created_at=db_diary.created_at,
+        updated_at=db_diary.updated_at,
+        flower_image=flower_image_data,
+    )
 
 
 @router.get("/", response_model=List[DiaryResponse])
