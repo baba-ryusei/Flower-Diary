@@ -13,7 +13,7 @@ class Settings:
     GCS_BUCKET_NAME: str = os.getenv("GCS_BUCKET_NAME", "flower-diary-images")
 
     # Vertex AI
-    VERTEX_AI_MODEL: str = os.getenv("VERTEX_AI_MODEL", "imagegeneration@006")
+    VERTEX_AI_MODEL: str = os.getenv("VERTEX_AI_MODEL", "imagen-3.0-fast-generate-001")
 
     # OpenAI
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")

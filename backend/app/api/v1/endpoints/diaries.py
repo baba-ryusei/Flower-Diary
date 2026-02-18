@@ -2,8 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from app.db import SessionLocal
-from app.models import Diary, User
+from app.models import Diary, User, FlowerImage
 from app.schemas.diary import DiaryCreate, DiaryUpdate, DiaryResponse
+from app.services.ml import PromptBuilder, ImageGenerator
 
 router = APIRouter(prefix="/diaries", tags=["diaries"])
 
@@ -46,7 +47,52 @@ async def create_diary(
     db.commit()
     db.refresh(db_diary)
 
-    return db_diary
+    # 画像生成
+    flower_image_data = None
+    try:
+        # プロンプト生成（OpenAI APIで感情分析）
+        prompt_builder = PromptBuilder()
+        prompt = prompt_builder.analyze_emotion_and_build_prompt(
+            diary_content=db_diary.content, mood=db_diary.mood
+        )
+
+        # 画像生成（Vertex AI）
+        generator = ImageGenerator()
+        image_url = await generator.generate_flower_image(
+            prompt=prompt, diary_id=db_diary.id
+        )
+
+        # 画像情報をDB保存
+        flower_image = FlowerImage(
+            diary_id=db_diary.id,
+            image_url=image_url,
+            prompt=prompt,
+        )
+        db.add(flower_image)
+        db.commit()
+        db.refresh(flower_image)
+
+        flower_image_data = {
+            "id": flower_image.id,
+            "diary_id": flower_image.diary_id,
+            "image_url": flower_image.image_url,
+            "prompt": flower_image.prompt,
+            "created_at": flower_image.created_at.isoformat(),
+        }
+
+    except Exception as e:
+        # 画像生成失敗してもエラーにしない（日記は保存済み）
+        print(f"画像生成エラー（日記は保存されました）: {str(e)}")
+
+    return DiaryResponse(
+        id=db_diary.id,
+        user_id=db_diary.user_id,
+        content=db_diary.content,
+        mood=db_diary.mood,
+        created_at=db_diary.created_at,
+        updated_at=db_diary.updated_at,
+        flower_image=flower_image_data,
+    )
 
 
 @router.get("/", response_model=List[DiaryResponse])

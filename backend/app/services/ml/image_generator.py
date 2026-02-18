@@ -2,9 +2,14 @@
 Vertex AI Imagen APIを使用して画像を生成する
 """
 
+import os
+
+# gRPCのDNSリゾルバをOS標準に切り替え（c-aresのDNS解決失敗を回避）
+os.environ.setdefault("GRPC_DNS_RESOLVER", "native")
 import base64
 from datetime import datetime
-from google.cloud import aiplatform
+import vertexai
+from vertexai.preview.vision_models import ImageGenerationModel
 from google.cloud import storage
 from app.core.config import settings
 
@@ -12,7 +17,7 @@ from app.core.config import settings
 class ImageGenerator:
     def __init__(self):
         # Vertex AI初期化
-        aiplatform.init(
+        vertexai.init(
             project=settings.GCP_PROJECT_ID,
             location=settings.GCP_LOCATION,
         )
@@ -32,17 +37,12 @@ class ImageGenerator:
         """
         try:
             # Vertex AI Imagen APIで画像生成
-            model = aiplatform.ImageGenerationModel.from_pretrained(
-                settings.VERTEX_AI_MODEL
-            )
+            model = ImageGenerationModel.from_pretrained(settings.VERTEX_AI_MODEL)
 
             # 画像生成リクエスト
             response = model.generate_images(
                 prompt=prompt,
                 number_of_images=1,
-                aspect_ratio="1:1",
-                safety_filter_level="block_some",
-                person_generation="allow_adult",
             )
 
             # 生成された画像を取得
