@@ -5,6 +5,45 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { createDiary } from "@/lib/api/diaries";
 
+const MOODS = [
+  {
+    value: "happy",
+    emoji: "😊",
+    label: "嬉しい",
+    color: "from-yellow-100 to-orange-100 border-yellow-300",
+  },
+  {
+    value: "sad",
+    emoji: "😢",
+    label: "悲しい",
+    color: "from-blue-100 to-indigo-100 border-blue-300",
+  },
+  {
+    value: "excited",
+    emoji: "✨",
+    label: "ワクワク",
+    color: "from-pink-100 to-rose-100 border-pink-300",
+  },
+  {
+    value: "calm",
+    emoji: "😌",
+    label: "穏やか",
+    color: "from-green-100 to-emerald-100 border-green-300",
+  },
+  {
+    value: "anxious",
+    emoji: "😰",
+    label: "不安",
+    color: "from-purple-100 to-violet-100 border-purple-300",
+  },
+  {
+    value: "grateful",
+    emoji: "🙏",
+    label: "感謝",
+    color: "from-amber-100 to-yellow-100 border-amber-300",
+  },
+];
+
 export default function NewDiaryPage() {
   const router = useRouter();
   const [content, setContent] = useState("");
@@ -19,10 +58,7 @@ export default function NewDiaryPage() {
     setError(null);
 
     try {
-      // TODO: 実際のユーザーIDを使用する（認証実装後）
       const userId = 1;
-
-      console.log("Submitting diary:", { userId, content, mood });
 
       const result = await createDiary({
         user_id: userId,
@@ -30,19 +66,14 @@ export default function NewDiaryPage() {
         mood: mood || undefined,
       });
 
-      console.log("Diary created successfully:", result);
-
-      // 画像が生成された場合は表示
       if (result.flower_image) {
         setGeneratedImage(result.flower_image.image_url);
       }
 
-      // 成功メッセージを表示後、一覧ページへ
       setTimeout(() => {
         router.push("/user/diary");
-      }, 3000);
+      }, 4000);
     } catch (err) {
-      console.error("Form submission error:", err);
       const errorMessage =
         err instanceof Error ? err.message : "日記の作成に失敗しました";
       setError(errorMessage);
@@ -51,153 +82,137 @@ export default function NewDiaryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-3xl mx-auto px-4">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">
-            新しい日記を書く
-          </h1>
+    <div className="max-w-2xl mx-auto px-6 py-8">
+      <div className="glass-card p-8 animate-fade-in-up">
+        {error && (
+          <div className="mb-6 p-4 rounded-2xl bg-red-50/80 border border-red-200">
+            <p className="text-red-500 text-sm">⚠️ {error}</p>
+          </div>
+        )}
 
-          {error && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
-              <p className="text-red-800">{error}</p>
+        {generatedImage ? (
+          /* 生成完了画面 */
+          <div className="text-center animate-fade-in-up">
+            <div className="mb-2">
+              <span className="text-4xl animate-sparkle inline-block">✨</span>
             </div>
-          )}
-
-          {generatedImage ? (
-            <div className="text-center">
-              <div className="mb-6">
-                <div className="inline-block p-1 bg-gradient-to-r from-pink-300 via-purple-300 to-blue-300 rounded-lg">
-                  <Image
-                    src={generatedImage}
-                    alt="生成された花の画像"
-                    width={512}
-                    height={512}
-                    className="w-full max-w-md rounded-lg shadow-lg"
-                  />
-                </div>
+            <h2 className="text-xl font-bold text-[#4a3728] mb-6">
+              お花が咲きました！
+            </h2>
+            <div className="mb-6 inline-block p-2 rounded-3xl bg-gradient-to-br from-pink-200 via-purple-200 to-blue-200 shadow-lg">
+              <Image
+                src={generatedImage}
+                alt="生成された花の画像"
+                width={512}
+                height={512}
+                className="w-full max-w-sm rounded-2xl"
+              />
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-center gap-2 text-green-500">
+                <span>🌸</span>
+                <p className="font-bold text-[#4a3728]">日記を保存しました！</p>
               </div>
-              <div className="space-y-4">
-                <div className="flex items-center justify-center gap-2">
-                  <svg
-                    className="w-6 h-6 text-green-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+              <p className="text-sm text-[#b09a7d]">
+                あなたの気持ちから、素敵なお花が咲きました
+              </p>
+              <p className="text-xs text-[#c9b99a] mt-4">
+                まもなく一覧ページへ移動します...
+              </p>
+            </div>
+          </div>
+        ) : (
+          /* 入力フォーム */
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {/* タイトル */}
+            <div className="text-center mb-2">
+              <span className="text-4xl inline-block mb-2">✏️</span>
+              <h1 className="text-2xl font-bold text-[#4a3728]">
+                今日のきもち
+              </h1>
+              <p className="text-sm text-[#b09a7d] mt-1">
+                あなたの日記からお花が咲きます
+              </p>
+            </div>
+
+            {/* mood選択 - カード型 */}
+            <div>
+              <label className="block text-sm font-bold text-[#8b7355] mb-3">
+                🎨 今日の気分は？
+              </label>
+              <div className="grid grid-cols-3 gap-3">
+                {MOODS.map((m) => (
+                  <button
+                    key={m.value}
+                    type="button"
+                    onClick={() => setMood(mood === m.value ? "" : m.value)}
+                    disabled={isLoading}
+                    className={`p-3 rounded-2xl border-2 transition-all duration-200 text-center
+                      ${
+                        mood === m.value
+                          ? `bg-gradient-to-br ${m.color} scale-105 shadow-md`
+                          : "bg-white/50 border-gray-100 hover:border-pink-200 hover:bg-pink-50/30"
+                      }`}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <p className="text-lg font-semibold text-gray-900">
-                    日記を保存しました！
-                  </p>
-                </div>
-                <p className="text-gray-600">
-                  あなたの気持ちから、素敵な花が咲きました。
-                </p>
-                <p className="text-sm text-gray-500">
-                  3秒後に一覧ページへ移動します...
-                </p>
+                    <span className="text-2xl block mb-1">{m.emoji}</span>
+                    <span className="text-xs font-medium text-[#8b7355]">
+                      {m.label}
+                    </span>
+                  </button>
+                ))}
               </div>
             </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label
-                  htmlFor="mood"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  今日の気分 (オプション)
-                </label>
-                <select
-                  id="mood"
-                  value={mood}
-                  onChange={(e) => setMood(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  disabled={isLoading}
-                >
-                  <option value="">選択してください</option>
-                  <option value="happy">嬉しい 😊</option>
-                  <option value="sad">悲しい 😢</option>
-                  <option value="excited">ワクワク ✨</option>
-                  <option value="calm">穏やか 😌</option>
-                  <option value="anxious">不安 😰</option>
-                  <option value="grateful">感謝 🙏</option>
-                </select>
-              </div>
 
-              <div>
-                <label
-                  htmlFor="content"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  日記の内容
-                </label>
-                <textarea
-                  id="content"
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  rows={10}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
-                  placeholder="今日あった出来事や、感じたことを自由に書いてください..."
-                  required
-                  disabled={isLoading}
-                />
-                <p className="mt-2 text-sm text-gray-500">
-                  あなたの日記から、AIが素敵な花の画像を生成します 🌸
-                </p>
-              </div>
+            {/* 日記本文 */}
+            <div>
+              <label
+                htmlFor="content"
+                className="block text-sm font-bold text-[#8b7355] mb-3"
+              >
+                📝 日記を書こう
+              </label>
+              <textarea
+                id="content"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                rows={8}
+                className="w-full px-5 py-4 rounded-2xl border-2 border-pink-100 bg-white/80 focus:border-pink-300 focus:ring-4 focus:ring-pink-100 focus:outline-none resize-none text-[#4a3728] placeholder:text-[#c9b99a] transition-all leading-relaxed"
+                placeholder="今日あったこと、感じたことを自由に書いてね..."
+                required
+                disabled={isLoading}
+              />
+              <p className="mt-2 text-xs text-[#c9b99a] text-right">
+                🌸 日記の内容からAIがお花を選びます
+              </p>
+            </div>
 
-              <div className="flex gap-4">
-                <button
-                  type="submit"
-                  disabled={isLoading || !content.trim()}
-                  className="flex-1 bg-purple-600 text-white px-6 py-3 rounded-md font-semibold hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-                >
-                  {isLoading ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <svg
-                        className="animate-spin h-5 w-5 text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                      </svg>
-                      保存中...
-                    </span>
-                  ) : (
-                    "日記を保存して画像を生成"
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => router.push("/user/diary")}
-                  disabled={isLoading}
-                  className="px-6 py-3 border border-gray-300 rounded-md font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  キャンセル
-                </button>
-              </div>
-            </form>
-          )}
-        </div>
+            {/* ボタン */}
+            <div className="flex gap-3 pt-2">
+              <button
+                type="submit"
+                disabled={isLoading || !content.trim()}
+                className="flex-1 btn-flower py-4 text-base disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none"
+              >
+                {isLoading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="animate-float inline-block">🌸</span>
+                    お花を咲かせています...
+                  </span>
+                ) : (
+                  "🌷 保存してお花を咲かせる"
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={() => router.push("/user/diary")}
+                disabled={isLoading}
+                className="px-6 py-4 rounded-full border-2 border-gray-200 text-[#b09a7d] font-bold hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              >
+                戻る
+              </button>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );

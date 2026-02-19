@@ -45,140 +45,123 @@ export default function DiaryListPage() {
       anxious: "😰",
       grateful: "🙏",
     };
-    return mood ? moodMap[mood] || "📝" : "📝";
+    return mood ? moodMap[mood] || "📝" : "🌸";
   };
 
-  const truncateContent = (content: string, maxLength = 100) => {
+  const getMoodColor = (mood?: string) => {
+    const colorMap: Record<string, string> = {
+      happy: "from-yellow-100 to-orange-100 border-yellow-200",
+      sad: "from-blue-100 to-indigo-100 border-blue-200",
+      excited: "from-pink-100 to-rose-100 border-pink-200",
+      calm: "from-green-100 to-emerald-100 border-green-200",
+      anxious: "from-purple-100 to-violet-100 border-purple-200",
+      grateful: "from-amber-100 to-yellow-100 border-amber-200",
+    };
+    return mood
+      ? colorMap[mood] || "from-pink-50 to-purple-50 border-pink-200"
+      : "from-pink-50 to-purple-50 border-pink-200";
+  };
+
+  const truncateContent = (content: string, maxLength = 80) => {
     if (content.length <= maxLength) return content;
     return content.slice(0, maxLength) + "...";
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-[60vh] flex items-center justify-center">
         <div className="text-center">
-          <svg
-            className="animate-spin h-10 w-10 text-purple-600 mx-auto mb-4"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            ></circle>
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
-          <p className="text-gray-600">読み込み中...</p>
+          <span className="text-5xl inline-block animate-float">🌸</span>
+          <p className="mt-4 text-[#b09a7d] font-medium">読み込み中...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">あなたの日記</h1>
+    <div className="max-w-3xl mx-auto px-6 py-8">
+      {/* ヘッダー */}
+      <div className="flex items-center justify-between mb-8 animate-fade-in-up">
+        <div>
+          <h1 className="text-2xl font-bold text-[#4a3728]">📖 あなたの日記</h1>
+          <p className="text-sm text-[#b09a7d] mt-1">
+            {diaries.length > 0
+              ? `${diaries.length}件のお花が咲いています`
+              : "まだお花がありません"}
+          </p>
+        </div>
+        <button
+          onClick={() => router.push("/user/diary/new")}
+          className="btn-flower px-6 py-3 text-sm flex items-center gap-2"
+        >
+          <span>✏️</span>
+          <span>新しい日記</span>
+        </button>
+      </div>
+
+      {error && (
+        <div className="mb-6 glass-card p-4 border-red-200 bg-red-50/70">
+          <p className="text-red-600 text-sm">⚠️ {error}</p>
+        </div>
+      )}
+
+      {diaries.length === 0 ? (
+        <div className="glass-card p-12 text-center animate-fade-in-up">
+          <span className="text-7xl inline-block animate-float mb-6">🌱</span>
+          <h2 className="text-xl font-bold text-[#4a3728] mb-2">
+            まだ日記がありません
+          </h2>
+          <p className="text-[#b09a7d] mb-8 text-sm leading-relaxed">
+            最初の日記を書いて、
+            <br />
+            あなただけのお花を咲かせましょう！
+          </p>
           <button
             onClick={() => router.push("/user/diary/new")}
-            className="flex items-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors shadow-md"
+            className="btn-flower px-8 py-3 text-sm"
           >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            新しい日記を書く
+            🌸 はじめての日記を書く
           </button>
         </div>
-
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-800">{error}</p>
-          </div>
-        )}
-
-        {diaries.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-12 text-center">
-            <div className="text-6xl mb-4">📖</div>
-            <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-              まだ日記がありません
-            </h2>
-            <p className="text-gray-600 mb-6">
-              最初の日記を書いて、素敵な花を咲かせましょう！
-            </p>
-            <button
-              onClick={() => router.push("/user/diary/new")}
-              className="bg-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+      ) : (
+        <div className="grid gap-4">
+          {diaries.map((diary, index) => (
+            <div
+              key={diary.id}
+              onClick={() => router.push(`/user/diary/${diary.id}`)}
+              className={`glass-card p-5 cursor-pointer hover:scale-[1.02] transition-all duration-300 animate-fade-in-up border bg-gradient-to-r ${getMoodColor(diary.mood)}`}
+              style={{ animationDelay: `${index * 0.1}s` }}
             >
-              日記を書く
-            </button>
-          </div>
-        ) : (
-          <div className="grid gap-6">
-            {diaries.map((diary) => (
-              <div
-                key={diary.id}
-                onClick={() => router.push(`/user/diary/${diary.id}`)}
-                className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer overflow-hidden"
-              >
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">
-                        {getMoodEmoji(diary.mood)}
+              <div className="flex items-start gap-4">
+                {/* 絵文字アイコン */}
+                <div className="w-12 h-12 rounded-2xl bg-white/80 flex items-center justify-center text-2xl flex-shrink-0 shadow-sm">
+                  {getMoodEmoji(diary.mood)}
+                </div>
+
+                {/* コンテンツ */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <time className="text-xs text-[#b09a7d] font-medium">
+                      {formatDate(diary.created_at)}
+                    </time>
+                    {diary.mood && (
+                      <span className="px-2 py-0.5 bg-white/60 text-[#8b7355] rounded-full text-xs font-medium">
+                        {diary.mood}
                       </span>
-                      <div>
-                        <time className="text-sm text-gray-500">
-                          {formatDate(diary.created_at)}
-                        </time>
-                        {diary.mood && (
-                          <span className="ml-2 inline-block px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs">
-                            {diary.mood}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <svg
-                      className="w-5 h-5 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
+                    )}
                   </div>
-                  <p className="text-gray-700 leading-relaxed">
+                  <p className="text-[#4a3728] text-sm leading-relaxed">
                     {truncateContent(diary.content)}
                   </p>
                 </div>
+
+                {/* 矢印 */}
+                <span className="text-pink-300 text-lg flex-shrink-0">›</span>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
