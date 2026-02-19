@@ -35,29 +35,10 @@ export default function DiaryDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-[60vh] flex items-center justify-center">
         <div className="text-center">
-          <svg
-            className="animate-spin h-10 w-10 text-purple-600 mx-auto mb-4"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            ></circle>
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
-          <p className="text-gray-600">読み込み中...</p>
+          <span className="text-5xl inline-block animate-float">🌸</span>
+          <p className="mt-4 text-[#b09a7d] font-medium">読み込み中...</p>
         </div>
       </div>
     );
@@ -65,19 +46,18 @@ export default function DiaryDetailPage() {
 
   if (error || !diary) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-3xl mx-auto px-4">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-            <p className="text-red-800 mb-4">
-              {error || "日記が見つかりません"}
-            </p>
-            <button
-              onClick={() => router.push("/user/diary")}
-              className="px-6 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
-            >
-              一覧に戻る
-            </button>
-          </div>
+      <div className="max-w-2xl mx-auto px-6 py-8">
+        <div className="glass-card p-8 text-center">
+          <span className="text-5xl block mb-4">😿</span>
+          <p className="text-[#8b7355] mb-6">
+            {error || "日記が見つかりません"}
+          </p>
+          <button
+            onClick={() => router.push("/user/diary")}
+            className="btn-flower px-6 py-3 text-sm"
+          >
+            📖 一覧に戻る
+          </button>
         </div>
       </div>
     );
@@ -103,76 +83,78 @@ export default function DiaryDetailPage() {
       anxious: "😰",
       grateful: "🙏",
     };
-    return mood ? moodMap[mood] || "📝" : "📝";
+    return mood ? moodMap[mood] || "🌸" : "🌸";
+  };
+
+  const getMoodLabel = (mood?: string) => {
+    const labelMap: Record<string, string> = {
+      happy: "嬉しい",
+      sad: "悲しい",
+      excited: "ワクワク",
+      calm: "穏やか",
+      anxious: "不安",
+      grateful: "感謝",
+    };
+    return mood ? labelMap[mood] || mood : "";
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="mb-4">
-          <button
-            onClick={() => router.push("/user/diary")}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-            一覧に戻る
-          </button>
-        </div>
+    <div className="max-w-2xl mx-auto px-6 py-8 animate-fade-in-up">
+      {/* 戻るボタン */}
+      <button
+        onClick={() => router.push("/user/diary")}
+        className="flex items-center gap-1 text-[#b09a7d] hover:text-[#8b7355] transition-colors mb-6 text-sm font-medium"
+      >
+        <span>←</span>
+        <span>一覧に戻る</span>
+      </button>
 
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          {/* 花の画像 */}
-          {diary.flower_image && (
-            <div className="bg-gradient-to-r from-pink-100 via-purple-100 to-blue-100 p-8">
-              <div className="max-w-2xl mx-auto">
+      <div className="glass-card overflow-hidden">
+        {/* 花の画像 */}
+        {diary.flower_image && (
+          <div className="p-6 pb-4 bg-gradient-to-br from-pink-50/80 via-purple-50/80 to-blue-50/80">
+            <div className="max-w-md mx-auto">
+              <div className="p-2 rounded-3xl bg-gradient-to-br from-pink-200 via-purple-200 to-blue-200 shadow-lg">
                 <Image
                   src={diary.flower_image.image_url}
                   alt="日記から生成された花"
                   width={800}
                   height={800}
-                  className="w-full rounded-lg shadow-xl"
+                  className="w-full rounded-2xl"
                 />
-                <p className="mt-4 text-sm text-gray-600 text-center italic">
+              </div>
+              {diary.flower_image.prompt && (
+                <p className="mt-3 text-xs text-[#c9b99a] text-center italic leading-relaxed">
                   &ldquo;{diary.flower_image.prompt}&rdquo;
                 </p>
-              </div>
+              )}
             </div>
-          )}
+          </div>
+        )}
 
-          {/* 日記内容 */}
-          <div className="p-8">
-            <div className="flex items-start justify-between mb-6">
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-3xl">{getMoodEmoji(diary.mood)}</span>
-                  <time className="text-gray-500">
-                    {formatDate(diary.created_at)}
-                  </time>
-                </div>
-                {diary.mood && (
-                  <span className="inline-block px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">
-                    {diary.mood}
-                  </span>
-                )}
-              </div>
+        {/* 日記内容 */}
+        <div className="p-6 pt-5">
+          {/* 日付・気分 */}
+          <div className="flex items-center gap-3 mb-5">
+            <span className="text-3xl">{getMoodEmoji(diary.mood)}</span>
+            <div>
+              <time className="text-sm text-[#b09a7d] block">
+                {formatDate(diary.created_at)}
+              </time>
+              {diary.mood && (
+                <span className="inline-block px-3 py-0.5 mt-1 bg-gradient-to-r from-pink-100 to-purple-100 text-[#8b7355] rounded-full text-xs font-medium">
+                  {getMoodLabel(diary.mood)}
+                </span>
+              )}
             </div>
+          </div>
 
-            <div className="prose max-w-none">
-              <div className="whitespace-pre-wrap text-gray-800 leading-relaxed">
-                {diary.content}
-              </div>
-            </div>
+          {/* 区切り線 */}
+          <div className="border-t border-pink-100 mb-5"></div>
+
+          {/* 本文 */}
+          <div className="whitespace-pre-wrap text-[#4a3728] leading-loose text-[15px]">
+            {diary.content}
           </div>
         </div>
       </div>

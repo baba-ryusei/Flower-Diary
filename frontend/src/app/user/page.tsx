@@ -1,41 +1,63 @@
-import Image from "next/image";
 import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            FR Diary - 友達関係日記アプリ
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            友達との関係を記録し、振り返ることができるアプリケーションです。
-          </p>
+    <div className="min-h-[calc(100vh-72px)] flex items-center justify-center px-6">
+      <div className="text-center max-w-lg animate-fade-in-up">
+        {/* メインビジュアル */}
+        <div className="mb-8">
+          <span className="text-8xl inline-block animate-float">🌸</span>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
+
+        <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-pink-400 via-purple-400 to-pink-300 bg-clip-text text-transparent leading-relaxed">
+          Flower Diary
+        </h1>
+        <p className="text-lg text-[#8b7355] mb-2 leading-relaxed">
+          あなたの気持ちを、世界にひとつだけの花に。
+        </p>
+        <p className="text-sm text-[#b09a7d] mb-10 leading-relaxed">
+          日記を書くと、AIがあなたの感情を読み取って
+          <br />
+          気持ちにぴったりのお花を咲かせます 🌷
+        </p>
+
+        {/* CTAボタン */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-purple-600 px-5 text-white transition-colors hover:bg-purple-700 md:w-[200px]"
-            href="/user/diary"
-          >
-            日記を見る
-          </Link>
-          <Link
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-pink-600 px-5 text-white transition-colors hover:bg-pink-700 md:w-[200px]"
             href="/user/diary/new"
+            className="btn-flower px-8 py-4 text-lg inline-flex items-center justify-center gap-2"
           >
-            日記を書く
+            <span>✏️</span>
+            <span>日記を書く</span>
+          </Link>
+          <Link
+            href="/user/diary"
+            className="px-8 py-4 text-lg rounded-full font-bold border-2 border-purple-200 text-purple-500 hover:bg-purple-50 transition-all inline-flex items-center justify-center gap-2"
+          >
+            <span>📖</span>
+            <span>日記を見る</span>
           </Link>
         </div>
-      </main>
+
+        {/* デコレーション */}
+        <div className="mt-16 flex justify-center gap-6 text-3xl opacity-40">
+          <span className="animate-float" style={{ animationDelay: "0s" }}>
+            🌷
+          </span>
+          <span className="animate-float" style={{ animationDelay: "0.5s" }}>
+            🌻
+          </span>
+          <span className="animate-float" style={{ animationDelay: "1s" }}>
+            💐
+          </span>
+          <span className="animate-float" style={{ animationDelay: "1.5s" }}>
+            🌹
+          </span>
+          <span className="animate-float" style={{ animationDelay: "2s" }}>
+            🌼
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
