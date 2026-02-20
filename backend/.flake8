@@ -1,0 +1,13 @@
+[flake8]
+max-line-length = 100
+exclude = 
+    .git,
+    __pycache__,
+    fr_env,
+    .venv,
+    venv,
+    alembic/versions
+
+# SQLAlchemyのrelationship型ヒントでF821を無視
+per-file-ignores =
+    app/models/*.py:F821

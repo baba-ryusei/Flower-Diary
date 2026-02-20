@@ -13,11 +13,25 @@ db-reset:
 	docker-compose -f $(DB_COMPOSE) down -v
 
 format:
-	black app/
+	fr_env/bin/black app/
 
 lint:
-	flake8 app --count --select=E9,F63,F7,F82 --show-source --statistics
-	flake8 app --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+	fr_env/bin/flake8 app --count --select=E9,F63,F7,F82 --show-source --statistics
+	fr_env/bin/flake8 app --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+# Alembic migration commands
+generate:
+	@read -p "Enter migration message: " msg; \
+	fr_env/bin/alembic revision --autogenerate -m "$$msg"
+
+upgrade:
+	fr_env/bin/alembic upgrade head
+
+downgrade:
+	fr_env/bin/alembic downgrade -1
+
+history:
+	fr_env/bin/alembic history
 
 dev:
-	uvicorn app.main:app --reload --host 0.0.0.0 --port 8005
+	fr_env/bin/uvicorn app.main:app --reload --host 0.0.0.0 --port 8005

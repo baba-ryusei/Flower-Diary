@@ -40,6 +40,9 @@ fr_env/
 .env.local
 .env.*.local
 
+# GCP Credentials
+credentials/
+
 # Database
 *.db
 *.sqlite3
