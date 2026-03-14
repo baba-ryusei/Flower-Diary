@@ -10,9 +10,13 @@ from .api.v1 import api_router
 app = FastAPI(title="Flower Diary API", version="1.0.0")
 
 # CORS設定
+origins = os.getenv(
+    "ALLOWED_ORIGINS", "http://localhost:3005,http://localhost:3000"
+).split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3005"],  # Next.jsのポート
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
