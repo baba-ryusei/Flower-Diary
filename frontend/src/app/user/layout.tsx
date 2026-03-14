@@ -50,6 +50,12 @@ export default function UserLayout({
           </Link>
           <nav className="flex items-center gap-2">
             <Link
+              href="/user/diary/calendar"
+              className="px-4 py-2 rounded-full text-sm font-medium text-pink-500 hover:bg-pink-50 transition-colors"
+            >
+              📅 カレンダー
+            </Link>
+            <Link
               href="/user/diary"
               className="px-4 py-2 rounded-full text-sm font-medium text-purple-600 hover:bg-purple-50 transition-colors"
             >
