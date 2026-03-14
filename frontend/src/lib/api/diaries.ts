@@ -92,6 +92,24 @@ export async function getDiaries(skip = 0, limit = 10): Promise<Diary[]> {
 }
 
 /**
+ * 指定した年月の日記一覧を取得（カレンダー用）
+ */
+export async function getDiariesByMonth(
+  year: number,
+  month: number
+): Promise<DiaryWithImage[]> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/diaries/monthly?year=${year}&month=${month}`
+  );
+
+  if (!response.ok) {
+    throw new Error("日記の取得に失敗しました");
+  }
+
+  return response.json();
+}
+
+/**
  * 特定の日記を取得
  */
 export async function getDiary(diaryId: number): Promise<DiaryWithImage> {

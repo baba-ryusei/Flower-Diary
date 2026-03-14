@@ -1,4 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from datetime import date
+from calendar import monthrange
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from typing import List
 from app.db import SessionLocal
@@ -112,6 +115,37 @@ async def list_diaries(
         .order_by(Diary.created_at.desc())
         .offset(skip)
         .limit(limit)
+        .all()
+    )
+    return diaries
+
+
+@router.get("/monthly", response_model=List[DiaryResponse])
+async def get_diaries_by_month(
+    year: int = Query(..., ge=2000, le=2100, description="年"),
+    month: int = Query(..., ge=1, le=12, description="月"),
+    db: Session = Depends(get_db),
+):
+    """
+    指定した年月の日記一覧を取得（カレンダー用）
+    """
+    # TODO: 認証実装後はトークンから取得
+    user_id = 1
+
+    from datetime import datetime
+
+    start_date = datetime(year, month, 1)
+    _, last_day = monthrange(year, month)
+    end_date = datetime(year, month, last_day, 23, 59, 59)
+
+    diaries = (
+        db.query(Diary)
+        .filter(
+            Diary.user_id == user_id,
+            Diary.created_at >= start_date,
+            Diary.created_at <= end_date,
+        )
+        .order_by(Diary.created_at.asc())
         .all()
     )
     return diaries

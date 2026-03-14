@@ -31,6 +31,13 @@ export default function Home() {
             <span>日記を書く</span>
           </Link>
           <Link
+            href="/user/diary/calendar"
+            className="px-8 py-4 text-lg rounded-full font-bold border-2 border-pink-200 text-pink-500 hover:bg-pink-50 transition-all inline-flex items-center justify-center gap-2"
+          >
+            <span>📅</span>
+            <span>カレンダー</span>
+          </Link>
+          <Link
             href="/user/diary"
             className="px-8 py-4 text-lg rounded-full font-bold border-2 border-purple-200 text-purple-500 hover:bg-purple-50 transition-all inline-flex items-center justify-center gap-2"
           >
