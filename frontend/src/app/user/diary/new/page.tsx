@@ -4,6 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { createDiary } from "@/lib/api/diaries";
+import { createEmotionLog, EMOTION_FACTORS } from "@/lib/api/emotions";
+
+const FACTOR_KEYS = Object.keys(EMOTION_FACTORS);
 
 const MOODS = [
   {
@@ -49,6 +52,8 @@ export default function NewDiaryPage() {
   const [content, setContent] = useState("");
   const [mood, setMood] = useState("");
   const [tension, setTension] = useState(50);
+  const [selectedFactors, setSelectedFactors] = useState<string[]>([]);
+  const [emotionAnalysis, setEmotionAnalysis] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
@@ -67,6 +72,12 @@ export default function NewDiaryPage() {
     }
   };
 
+  const toggleFactor = (key: string) => {
+    setSelectedFactors((prev) =>
+      prev.includes(key) ? prev.filter((f) => f !== key) : [...prev, key]
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -81,6 +92,22 @@ export default function NewDiaryPage() {
         mood: mood || undefined,
         tension: tension,
       });
+
+      // 感情ログを保存（バックグラウンドで。失敗しても日記は保存済み）
+      if (result.id) {
+        try {
+          const emotionResult = await createEmotionLog(
+            result.id,
+            tension,
+            selectedFactors
+          );
+          if (emotionResult.analysis) {
+            setEmotionAnalysis(emotionResult.analysis);
+          }
+        } catch {
+          // 感情ログ失敗は無視
+        }
+      }
 
       if (result.flower_image) {
         setGeneratedImage(result.flower_image.image_url);
@@ -132,6 +159,25 @@ export default function NewDiaryPage() {
               <p className="text-sm text-[#b09a7d]">
                 あなたの気持ちから、素敵なお花が咲きました
               </p>
+
+              {/* AI感情分析結果 */}
+              {emotionAnalysis && (
+                <div
+                  className={`mt-4 p-4 rounded-2xl text-left text-sm leading-relaxed ${
+                    tension <= 30
+                      ? "bg-blue-50 border border-blue-200 text-blue-800"
+                      : "bg-amber-50 border border-amber-200 text-amber-800"
+                  }`}
+                >
+                  <p className="font-bold mb-1">
+                    {tension <= 30
+                      ? "💙 AIからのひとこと"
+                      : "🌟 あなたのエネルギー源"}
+                  </p>
+                  <p>{emotionAnalysis}</p>
+                </div>
+              )}
+
               <p className="text-xs text-[#c9b99a] mt-4">
                 まもなく一覧ページへ移動します...
               </p>
@@ -192,6 +238,7 @@ export default function NewDiaryPage() {
                   type="range"
                   min="1"
                   max="100"
+                  title="テンションをスライダーで調整"
                   value={tension}
                   onChange={(e) => setTension(Number(e.target.value))}
                   disabled={isLoading}
@@ -206,6 +253,7 @@ export default function NewDiaryPage() {
                   type="number"
                   min="1"
                   max="100"
+                  title="テンション値を直接入力"
                   value={tension}
                   onChange={(e) => handleTensionChange(e.target.value)}
                   disabled={isLoading}
@@ -234,10 +282,48 @@ export default function NewDiaryPage() {
                   テンション: {tension}/100
                 </p>
                 <p className="text-xs text-[#b09a7d] mt-1">
-                  {tension < 40 && "少し落ち着いた気分ですね"}
-                  {tension >= 40 && tension < 70 && "いつも通りの気分ですね"}
-                  {tension >= 70 && "元気な気分ですね！"}
+                  {tension <= 30 && "😔 少しストレスを感じていそうです"}
+                  {tension > 30 && tension <= 69 && "😐 いつも通りの気分ですね"}
+                  {tension >= 70 && "😊 元気な気分ですね！"}
                 </p>
+              </div>
+            </div>
+
+            {/* 感情の要因選択 */}
+            <div>
+              <label className="block text-sm font-bold text-[#8b7355] mb-1">
+                {tension <= 30
+                  ? "😔 ストレスの要因は何ですか？"
+                  : tension >= 70
+                    ? "🌟 元気の源は何ですか？"
+                    : "💭 今日の気分に影響したものは？"}
+              </label>
+              <p className="text-xs text-[#b09a7d] mb-3">
+                当てはまるものを選んでください（複数選択可）
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {FACTOR_KEYS.map((key) => {
+                  const isSelected = selectedFactors.includes(key);
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => toggleFactor(key)}
+                      disabled={isLoading}
+                      className={`px-3 py-2.5 rounded-xl border-2 text-left text-xs font-medium transition-all duration-150 ${
+                        isSelected
+                          ? tension <= 30
+                            ? "border-blue-400 bg-blue-50 text-blue-700"
+                            : tension >= 70
+                              ? "border-amber-400 bg-amber-50 text-amber-700"
+                              : "border-pink-400 bg-pink-50 text-pink-700"
+                          : "border-gray-100 bg-white/50 text-[#8b7355] hover:border-pink-200"
+                      }`}
+                    >
+                      {EMOTION_FACTORS[key]}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 

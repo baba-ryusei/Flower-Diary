@@ -35,6 +35,13 @@ export default function Home() {
                 <span>日記を書く</span>
               </Link>
               <Link
+                href="/user/emotion"
+                className="px-8 py-4 text-lg rounded-full font-bold border-2 border-blue-200 text-blue-500 hover:bg-blue-50 transition-all inline-flex items-center justify-center gap-2"
+              >
+                <span>📊</span>
+                <span>感情ログ</span>
+              </Link>
+              <Link
                 href="/user/diary/calendar"
                 className="px-8 py-4 text-lg rounded-full font-bold border-2 border-pink-200 text-pink-500 hover:bg-pink-50 transition-all inline-flex items-center justify-center gap-2"
               >

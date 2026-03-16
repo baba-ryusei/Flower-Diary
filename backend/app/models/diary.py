@@ -26,3 +26,9 @@ class Diary(Base):
     flower_images: Mapped[list["FlowerImage"]] = relationship(
         "FlowerImage", back_populates="diary", cascade="all, delete-orphan"
     )
+    emotion_log: Mapped["EmotionLog | None"] = relationship(
+        "EmotionLog",
+        back_populates="diary",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
