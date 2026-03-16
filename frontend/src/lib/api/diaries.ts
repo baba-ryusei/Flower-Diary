@@ -6,6 +6,7 @@ export interface Diary {
   user_id: number;
   content: string;
   mood?: string;
+  tension?: number;
   created_at: string;
   updated_at: string;
 }
@@ -22,6 +23,7 @@ export interface CreateDiaryRequest {
   user_id: number;
   content: string;
   mood?: string;
+  tension?: number;
 }
 
 export interface DiaryWithImage extends Diary {

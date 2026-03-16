@@ -48,9 +48,24 @@ export default function NewDiaryPage() {
   const router = useRouter();
   const [content, setContent] = useState("");
   const [mood, setMood] = useState("");
+  const [tension, setTension] = useState(50);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+
+  // テンション値の変更ハンドラー（バリデーション付き）
+  const handleTensionChange = (value: string) => {
+    const numValue = parseInt(value, 10);
+    if (isNaN(numValue)) {
+      setTension(1);
+    } else if (numValue < 1) {
+      setTension(1);
+    } else if (numValue > 100) {
+      setTension(100);
+    } else {
+      setTension(numValue);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,6 +79,7 @@ export default function NewDiaryPage() {
         user_id: userId,
         content,
         mood: mood || undefined,
+        tension: tension,
       });
 
       if (result.flower_image) {
@@ -160,6 +176,68 @@ export default function NewDiaryPage() {
                     </span>
                   </button>
                 ))}
+              </div>
+            </div>
+
+            {/* テンション入力 */}
+            <div>
+              <label className="block text-sm font-bold text-[#8b7355] mb-3">
+                💪 今日のテンション感は？
+              </label>
+
+              {/* スライダーと数値入力を横並び */}
+              <div className="flex items-center gap-4 mb-3">
+                {/* スライダー */}
+                <input
+                  type="range"
+                  min="1"
+                  max="100"
+                  value={tension}
+                  onChange={(e) => setTension(Number(e.target.value))}
+                  disabled={isLoading}
+                  className="flex-1 h-3 rounded-lg appearance-none cursor-pointer slider-thumb"
+                  style={{
+                    background: `linear-gradient(to right, #bfdbfe 0%, #bbf7d0 ${tension}%, #fef08a 100%)`,
+                  }}
+                />
+
+                {/* 数値入力ボックス */}
+                <input
+                  type="number"
+                  min="1"
+                  max="100"
+                  value={tension}
+                  onChange={(e) => handleTensionChange(e.target.value)}
+                  disabled={isLoading}
+                  className="w-20 px-3 py-2 text-center rounded-xl border-2 border-pink-100 bg-white/80 focus:border-pink-300 focus:ring-2 focus:ring-pink-100 focus:outline-none text-[#4a3728] font-bold text-lg transition-all"
+                />
+              </div>
+
+              {/* 目盛り */}
+              <div className="flex justify-between text-xs text-[#b09a7d] mb-3">
+                <span>低い (1)</span>
+                <span>普通 (50)</span>
+                <span>高い (100)</span>
+              </div>
+
+              {/* ビジュアルインジケーター */}
+              <div className="text-center p-4 bg-gradient-to-br from-pink-50 to-purple-50 rounded-2xl">
+                <div className="text-5xl mb-2">
+                  {tension < 20 && "😔"}
+                  {tension >= 20 && tension < 40 && "😕"}
+                  {tension >= 40 && tension < 60 && "😐"}
+                  {tension >= 60 && tension < 80 && "🙂"}
+                  {tension >= 80 && tension < 95 && "😊"}
+                  {tension >= 95 && "🤩"}
+                </div>
+                <p className="text-sm font-bold text-[#4a3728]">
+                  テンション: {tension}/100
+                </p>
+                <p className="text-xs text-[#b09a7d] mt-1">
+                  {tension < 40 && "少し落ち着いた気分ですね"}
+                  {tension >= 40 && tension < 70 && "いつも通りの気分ですね"}
+                  {tension >= 70 && "元気な気分ですね！"}
+                </p>
               </div>
             </div>
 
