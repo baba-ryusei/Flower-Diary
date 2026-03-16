@@ -122,6 +122,18 @@ async def list_diaries(
     return diaries
 
 
+@router.get("/count", response_model=dict)
+async def get_diary_count(
+    db: Session = Depends(get_db),
+):
+    """
+    日記の合計数を取得（花の成長進捗用）
+    """
+    user_id = 1  # TODO: 認証実装後修正
+    count = db.query(Diary).filter(Diary.user_id == user_id).count()
+    return {"count": count}
+
+
 @router.get("/monthly", response_model=List[DiaryResponse])
 async def get_diaries_by_month(
     year: int = Query(..., ge=2000, le=2100, description="年"),

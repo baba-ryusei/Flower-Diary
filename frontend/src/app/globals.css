@@ -43,6 +43,46 @@ body {
   background: #f472b6;
 }
 
+/* SVG 花びらアニメーション */
+.petal-group {
+  transition: transform 1.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.petal-path {
+  transition:
+    rx 1.6s ease,
+    ry 1.6s ease,
+    transform 1.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.sepal-path {
+  transition: opacity 0.9s ease;
+}
+
+.flower-center {
+  transition: r 1.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 開花パーティクルアニメーション */
+@keyframes bloomPetal {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.2) rotate(15deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5) rotate(30deg) translateY(-40px);
+  }
+}
+
+.bloom-particle {
+  animation: bloomPetal 1.2s ease-out forwards;
+}
+
 /* Range スライダーのカスタムスタイル */
 input[type="range"] {
   -webkit-appearance: none;
