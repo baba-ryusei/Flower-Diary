@@ -14,30 +14,14 @@ export default function UserLayout({
   return (
     <div className="min-h-screen bg-floral relative overflow-hidden">
       {/* 浮遊する花びらパーティクル */}
-      <span className="petal petal-1" style={{ bottom: "-20px", left: "5%" }}>
-        🌸
-      </span>
-      <span className="petal petal-2" style={{ bottom: "-20px", left: "15%" }}>
-        💮
-      </span>
-      <span className="petal petal-3" style={{ bottom: "-20px", left: "28%" }}>
-        🩷
-      </span>
-      <span className="petal petal-4" style={{ bottom: "-20px", left: "42%" }}>
-        🌸
-      </span>
-      <span className="petal petal-5" style={{ bottom: "-20px", left: "58%" }}>
-        ✿
-      </span>
-      <span className="petal petal-6" style={{ bottom: "-20px", left: "72%" }}>
-        🌷
-      </span>
-      <span className="petal petal-7" style={{ bottom: "-20px", left: "85%" }}>
-        🌸
-      </span>
-      <span className="petal petal-8" style={{ bottom: "-20px", left: "95%" }}>
-        💗
-      </span>
+      <span className="petal petal-1">🌸</span>
+      <span className="petal petal-2">💮</span>
+      <span className="petal petal-3">🩷</span>
+      <span className="petal petal-4">🌸</span>
+      <span className="petal petal-5">✿</span>
+      <span className="petal petal-6">🌷</span>
+      <span className="petal petal-7">🌸</span>
+      <span className="petal petal-8">💗</span>
 
       {/* ヘッダー */}
       <header className="glass-card rounded-none border-x-0 border-t-0 sticky top-0 z-50">
@@ -60,6 +44,12 @@ export default function UserLayout({
               className="px-4 py-2 rounded-full text-sm font-medium text-purple-600 hover:bg-purple-50 transition-colors"
             >
               📖 日記一覧
+            </Link>
+            <Link
+              href="/user/chat"
+              className="px-4 py-2 rounded-full text-sm font-medium text-blue-500 hover:bg-blue-50 transition-colors"
+            >
+              💬 チャット
             </Link>
             <Link
               href="/user/diary/new"

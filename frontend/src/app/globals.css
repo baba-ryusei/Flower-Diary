@@ -213,29 +213,38 @@ body {
   pointer-events: none;
   z-index: 0;
   font-size: 1.2rem;
+  bottom: -20px;
 }
 
 .petal-1 {
+  left: 5%;
   animation: petalFloat1 12s ease-in-out infinite;
 }
 .petal-2 {
+  left: 15%;
   animation: petalFloat2 16s ease-in-out infinite;
 }
 .petal-3 {
+  left: 28%;
   animation: petalFloat3 14s ease-in-out infinite;
 }
 .petal-4 {
+  left: 42%;
   animation: petalFloat1 18s ease-in-out infinite;
 }
 .petal-5 {
+  left: 58%;
   animation: petalFloat2 10s ease-in-out infinite;
 }
 .petal-6 {
+  left: 72%;
   animation: petalFloat3 20s ease-in-out infinite;
 }
 .petal-7 {
+  left: 85%;
   animation: petalFloat1 15s ease-in-out infinite;
 }
 .petal-8 {
+  left: 95%;
   animation: petalFloat2 13s ease-in-out infinite;
 }
