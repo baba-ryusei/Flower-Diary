@@ -46,6 +46,12 @@ export default function UserLayout({
               📖 日記一覧
             </Link>
             <Link
+              href="/user/emotion"
+              className="px-4 py-2 rounded-full text-sm font-medium text-blue-500 hover:bg-blue-50 transition-colors"
+            >
+              📊 感情ログ
+            </Link>
+            <Link
               href="/user/chat"
               className="px-4 py-2 rounded-full text-sm font-medium text-blue-500 hover:bg-blue-50 transition-colors"
             >
