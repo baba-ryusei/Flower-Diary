@@ -125,6 +125,20 @@ export async function getDiary(diaryId: number): Promise<DiaryWithImage> {
 }
 
 /**
+ * 日記の合計数を取得（花の成長進捗用）
+ */
+export async function getDiaryCount(): Promise<number> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/diaries/count`);
+    if (!response.ok) return 0;
+    const data = await response.json();
+    return data.count as number;
+  } catch {
+    return 0;
+  }
+}
+
+/**
  * 日記の花画像を生成
  */
 export async function generateFlowerImage(
