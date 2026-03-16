@@ -6,6 +6,7 @@ export interface Diary {
   user_id: number;
   content: string;
   mood?: string;
+  tension?: number;
   created_at: string;
   updated_at: string;
 }
@@ -22,6 +23,7 @@ export interface CreateDiaryRequest {
   user_id: number;
   content: string;
   mood?: string;
+  tension?: number;
 }
 
 export interface DiaryWithImage extends Diary {
@@ -120,6 +122,20 @@ export async function getDiary(diaryId: number): Promise<DiaryWithImage> {
   }
 
   return response.json();
+}
+
+/**
+ * 日記の合計数を取得（花の成長進捗用）
+ */
+export async function getDiaryCount(): Promise<number> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/diaries/count`);
+    if (!response.ok) return 0;
+    const data = await response.json();
+    return data.count as number;
+  } catch {
+    return 0;
+  }
 }
 
 /**

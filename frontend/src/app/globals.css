@@ -43,6 +43,90 @@ body {
   background: #f472b6;
 }
 
+/* SVG 花びらアニメーション */
+.petal-group {
+  transition: transform 1.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.petal-path {
+  transition:
+    rx 1.6s ease,
+    ry 1.6s ease,
+    transform 1.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.sepal-path {
+  transition: opacity 0.9s ease;
+}
+
+.flower-center {
+  transition: r 1.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 開花パーティクルアニメーション */
+@keyframes bloomPetal {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.2) rotate(15deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5) rotate(30deg) translateY(-40px);
+  }
+}
+
+.bloom-particle {
+  animation: bloomPetal 1.2s ease-out forwards;
+}
+
+/* Range スライダーのカスタムスタイル */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ec4899, #8b5cf6);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(236, 72, 153, 0.4);
+  border: 3px solid white;
+  transition: transform 0.2s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ec4899, #8b5cf6);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(236, 72, 153, 0.4);
+  border: 3px solid white;
+  transition: transform 0.2s;
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* 数値入力の矢印スタイル */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  opacity: 1;
+}
+
 /* フワフワアニメーション */
 @keyframes float {
   0%,
@@ -213,29 +297,38 @@ body {
   pointer-events: none;
   z-index: 0;
   font-size: 1.2rem;
+  bottom: -20px;
 }
 
 .petal-1 {
+  left: 5%;
   animation: petalFloat1 12s ease-in-out infinite;
 }
 .petal-2 {
+  left: 15%;
   animation: petalFloat2 16s ease-in-out infinite;
 }
 .petal-3 {
+  left: 28%;
   animation: petalFloat3 14s ease-in-out infinite;
 }
 .petal-4 {
+  left: 42%;
   animation: petalFloat1 18s ease-in-out infinite;
 }
 .petal-5 {
+  left: 58%;
   animation: petalFloat2 10s ease-in-out infinite;
 }
 .petal-6 {
+  left: 72%;
   animation: petalFloat3 20s ease-in-out infinite;
 }
 .petal-7 {
+  left: 85%;
   animation: petalFloat1 15s ease-in-out infinite;
 }
 .petal-8 {
+  left: 95%;
   animation: petalFloat2 13s ease-in-out infinite;
 }

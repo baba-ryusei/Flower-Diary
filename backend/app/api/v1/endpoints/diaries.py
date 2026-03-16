@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from calendar import monthrange
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -45,6 +45,7 @@ async def create_diary(
         user_id=user_id,
         content=diary.content,
         mood=diary.mood,
+        tension=diary.tension,
     )
     db.add(db_diary)
     db.commit()
@@ -95,6 +96,7 @@ async def create_diary(
         created_at=db_diary.created_at,
         updated_at=db_diary.updated_at,
         flower_image=flower_image_data,
+        tension=db_diary.tension,
     )
 
 
@@ -118,6 +120,18 @@ async def list_diaries(
         .all()
     )
     return diaries
+
+
+@router.get("/count", response_model=dict)
+async def get_diary_count(
+    db: Session = Depends(get_db),
+):
+    """
+    日記の合計数を取得（花の成長進捗用）
+    """
+    user_id = 1  # TODO: 認証実装後修正
+    count = db.query(Diary).filter(Diary.user_id == user_id).count()
+    return {"count": count}
 
 
 @router.get("/monthly", response_model=List[DiaryResponse])
@@ -193,6 +207,38 @@ async def get_diary(
         }
 
     return response
+
+
+@router.get("/statistics", response_model=dict)
+async def get_tension_statistics(
+    year: int = Query(..., ge=2000, le=2100, description="年"),
+    month: int = Query(..., ge=1, le=12, description="月"),
+    db: Session = Depends(get_db),
+):
+    start_date = datetime(year, month, 1)
+    if month == 12:
+        end_date = datetime(year + 1, 1, 1)
+    else:
+        end_date = datetime(year, month + 1, 1)
+
+    diaries = (
+        db.query(Diary)
+        .filter(
+            Diary.user_id == 1,  # TODO: 認証実装後はトークンから取得
+            Diary.created_at >= start_date,
+            Diary.created_at < end_date,
+            Diary.tension != None,  # tensionがnullでないものを対象
+        )
+        .all()
+    )
+
+    return {
+        "average_tension": (
+            sum(d.tension for d in diaries) / len(diaries) if diaries else None
+        ),
+        "max_tension": max(d.tension for d in diaries) if diaries else None,
+        "min_tension": min(d.tension for d in diaries) if diaries else None,
+    }
 
 
 @router.put("/{diary_id}", response_model=DiaryResponse)
