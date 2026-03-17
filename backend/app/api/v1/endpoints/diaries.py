@@ -7,7 +7,7 @@ from typing import List
 from app.db import SessionLocal
 from app.models import Diary, User, FlowerImage
 from app.schemas.diary import DiaryCreate, DiaryUpdate, DiaryResponse
-from app.services.ml import PromptBuilder, ImageGenerator
+from app.services.ml import PromptBuilder, ImageGenerator, AICommentService
 
 router = APIRouter(prefix="/diaries", tags=["diaries"])
 
@@ -43,13 +43,30 @@ async def create_diary(
     # 日記作成
     db_diary = Diary(
         user_id=user_id,
+        title=diary.title,
         content=diary.content,
         mood=diary.mood,
         tension=diary.tension,
+        photo_url=diary.photo_url,
     )
     db.add(db_diary)
     db.commit()
     db.refresh(db_diary)
+
+    # AIコメント生成（失敗しても日記は保存済み）
+    ai_comment = None
+    try:
+        comment_service = AICommentService()
+        ai_comment = await comment_service.generate_comment(
+            diary_content=db_diary.content,
+            photo_url=db_diary.photo_url,
+            mood=db_diary.mood,
+        )
+        db_diary.ai_comment = ai_comment
+        db.commit()
+        db.refresh(db_diary)
+    except Exception as e:
+        print(f"AIコメント生成エラー（日記は保存されました）: {str(e)})")
 
     # 画像生成
     flower_image_data = None
@@ -91,12 +108,15 @@ async def create_diary(
     return DiaryResponse(
         id=db_diary.id,
         user_id=db_diary.user_id,
+        title=db_diary.title,
         content=db_diary.content,
         mood=db_diary.mood,
         created_at=db_diary.created_at,
         updated_at=db_diary.updated_at,
         flower_image=flower_image_data,
         tension=db_diary.tension,
+        photo_url=db_diary.photo_url,
+        ai_comment=db_diary.ai_comment,
     )
 
 
