@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { createDiary } from "@/lib/api/diaries";
+import { createDiary, uploadPhoto } from "@/lib/api/diaries";
 import { createEmotionLog, EMOTION_FACTORS } from "@/lib/api/emotions";
 
 const FACTOR_KEYS = Object.keys(EMOTION_FACTORS);
@@ -49,11 +49,15 @@ const MOODS = [
 
 export default function NewDiaryPage() {
   const router = useRouter();
+  const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [mood, setMood] = useState("");
   const [tension, setTension] = useState(50);
   const [selectedFactors, setSelectedFactors] = useState<string[]>([]);
   const [emotionAnalysis, setEmotionAnalysis] = useState<string | null>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [aiComment, setAiComment] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
@@ -72,6 +76,20 @@ export default function NewDiaryPage() {
     }
   };
 
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPhotoFile(file);
+    const reader = new FileReader();
+    reader.onload = (ev) => setPhotoPreview(ev.target?.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const removePhoto = () => {
+    setPhotoFile(null);
+    setPhotoPreview(null);
+  };
+
   const toggleFactor = (key: string) => {
     setSelectedFactors((prev) =>
       prev.includes(key) ? prev.filter((f) => f !== key) : [...prev, key]
@@ -86,12 +104,24 @@ export default function NewDiaryPage() {
     try {
       const userId = 1;
 
+      // 写真がある場合は先にアップロード
+      let uploadedPhotoUrl: string | undefined;
+      if (photoFile) {
+        uploadedPhotoUrl = await uploadPhoto(photoFile);
+      }
+
       const result = await createDiary({
         user_id: userId,
+        title: title.trim() || undefined,
         content,
         mood: mood || undefined,
         tension: tension,
+        photo_url: uploadedPhotoUrl,
       });
+
+      if (result.ai_comment) {
+        setAiComment(result.ai_comment);
+      }
 
       // 感情ログを保存（バックグラウンドで。失敗しても日記は保存済み）
       if (result.id) {
@@ -178,6 +208,18 @@ export default function NewDiaryPage() {
                 </div>
               )}
 
+              {/* AIコメント（写真・文章への返答） */}
+              {aiComment && (
+                <div className="mt-4 p-4 rounded-2xl text-left text-sm leading-relaxed bg-green-50 border border-green-200 text-green-800">
+                  <p className="font-bold mb-1">
+                    {photoFile
+                      ? "📸 写真と日記へのAIコメント"
+                      : "💬 今日の日記へのAIコメント"}
+                  </p>
+                  <p>{aiComment}</p>
+                </div>
+              )}
+
               <p className="text-xs text-[#c9b99a] mt-4">
                 まもなく一覧ページへ移動します...
               </p>
@@ -186,14 +228,37 @@ export default function NewDiaryPage() {
         ) : (
           /* 入力フォーム */
           <form onSubmit={handleSubmit} className="space-y-8">
-            {/* タイトル */}
+            {/* ページヘッダー */}
             <div className="text-center mb-2">
               <span className="text-4xl inline-block mb-2">✏️</span>
               <h1 className="text-2xl font-bold text-[#4a3728]">
                 今日のきもち
               </h1>
               <p className="text-sm text-[#b09a7d] mt-1">
-                あなたの日記からお花が咲きます
+                あなたの日記からお花が和きます
+              </p>
+            </div>
+
+            {/* 題名 */}
+            <div>
+              <label
+                htmlFor="title"
+                className="block text-sm font-bold text-[#8b7355] mb-3"
+              >
+                📝 題名（任意）
+              </label>
+              <input
+                id="title"
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                maxLength={100}
+                disabled={isLoading}
+                className="w-full px-5 py-3 rounded-2xl border-2 border-pink-100 bg-white/80 focus:border-pink-300 focus:ring-4 focus:ring-pink-100 focus:outline-none text-[#4a3728] placeholder:text-[#c9b99a] transition-all"
+                placeholder="今日の日記の題名（省略可）"
+              />
+              <p className="mt-1 text-xs text-[#c9b99a] text-right">
+                {title.length} / 100
               </p>
             </div>
 
@@ -327,6 +392,52 @@ export default function NewDiaryPage() {
               </div>
             </div>
 
+            {/* 写真アップロード */}
+            <div>
+              <label className="block text-sm font-bold text-[#8b7355] mb-3">
+                📷 今日の一枚（任意）
+              </label>
+              {photoPreview ? (
+                <div className="relative inline-block">
+                  <Image
+                    src={photoPreview}
+                    alt="添付写真プレビュー"
+                    width={400}
+                    height={300}
+                    className="w-full max-h-60 object-cover rounded-2xl border-2 border-pink-200"
+                  />
+                  <button
+                    type="button"
+                    onClick={removePhoto}
+                    disabled={isLoading}
+                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/50 text-white text-xs flex items-center justify-center hover:bg-black/70 transition-colors"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center w-full h-32 rounded-2xl border-2 border-dashed border-pink-200 bg-pink-50/30 hover:bg-pink-50/60 cursor-pointer transition-colors">
+                  <span className="text-2xl mb-1">📸</span>
+                  <span className="text-sm text-[#b09a7d]">
+                    タップして写真を選択
+                  </span>
+                  <span className="text-xs text-[#c9b99a] mt-1">
+                    JPEG / PNG / WebP（最大10MB）
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={handlePhotoChange}
+                    disabled={isLoading}
+                    className="hidden"
+                  />
+                </label>
+              )}
+              <p className="mt-2 text-xs text-[#c9b99a]">
+                📸 写真があるとAIがより詳しくコメントします
+              </p>
+            </div>
+
             {/* 日記本文 */}
             <div>
               <label
@@ -360,7 +471,7 @@ export default function NewDiaryPage() {
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">
                     <span className="animate-float inline-block">🌸</span>
-                    お花を咲かせています...
+                    {photoFile ? "写真を送信中..." : "お花を咲かせています..."}
                   </span>
                 ) : (
                   "🌷 保存してお花を咲かせる"

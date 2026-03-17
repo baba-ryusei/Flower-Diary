@@ -10,6 +10,7 @@ from app.services.ml.emotion_analysis import (
     classify_tension_level,
     EMOTION_FACTORS,
 )
+from app.services.ml.ai_comment import AICommentService
 
 __all__ = [
     "ImageGenerator",
@@ -18,4 +19,5 @@ __all__ = [
     "EmotionAnalysisService",
     "classify_tension_level",
     "EMOTION_FACTORS",
+    "AICommentService",
 ]

@@ -4,6 +4,7 @@ const API_BASE_URL =
 export interface Diary {
   id: number;
   user_id: number;
+  title?: string;
   content: string;
   mood?: string;
   tension?: number;
@@ -21,13 +22,17 @@ export interface FlowerImage {
 
 export interface CreateDiaryRequest {
   user_id: number;
+  title?: string;
   content: string;
   mood?: string;
   tension?: number;
+  photo_url?: string;
 }
 
 export interface DiaryWithImage extends Diary {
   flower_image?: FlowerImage;
+  photo_url?: string;
+  ai_comment?: string;
 }
 
 /**
@@ -158,4 +163,29 @@ export async function generateFlowerImage(
   }
 
   return response.json();
+}
+
+/**
+ * 日記に添付する写真をGCSにアップロードし、公開URLを返す
+ */
+export async function uploadPhoto(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch(`${API_BASE_URL}/api/v1/photos/upload`, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    let msg = "写真のアップロードに失敗しました";
+    try {
+      const err = await response.json();
+      msg = err.detail || msg;
+    } catch {}
+    throw new Error(msg);
+  }
+
+  const data = await response.json();
+  return data.photo_url as string;
 }
