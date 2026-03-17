@@ -1,5 +1,6 @@
 from datetime import date, datetime
 from calendar import monthrange
+import asyncio
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
@@ -53,57 +54,72 @@ async def create_diary(
     db.commit()
     db.refresh(db_diary)
 
-    # AIコメント生成（失敗しても日記は保存済み）
-    ai_comment = None
-    try:
-        comment_service = AICommentService()
-        ai_comment = await comment_service.generate_comment(
-            diary_content=db_diary.content,
-            photo_url=db_diary.photo_url,
-            mood=db_diary.mood,
-        )
-        db_diary.ai_comment = ai_comment
-        db.commit()
-        db.refresh(db_diary)
-    except Exception as e:
-        print(f"AIコメント生成エラー（日記は保存されました）: {str(e)})")
+    # AIコメント生成はバックグラウンドで実行（レスポンスをブロックしない）
+    async def _generate_ai_comment(
+        diary_id: int, content: str, photo_url: str | None, mood: str | None
+    ):
+        bg_db = SessionLocal()
+        try:
+            comment_service = AICommentService()
+            comment = await comment_service.generate_comment(
+                diary_content=content,
+                photo_url=photo_url,
+                mood=mood,
+            )
+            bg_diary = bg_db.query(Diary).filter(Diary.id == diary_id).first()
+            if bg_diary:
+                bg_diary.ai_comment = comment
+                bg_db.commit()
+        except Exception as e:
+            print(f"AIコメント生成エラー: {str(e)}")
+        finally:
+            bg_db.close()
 
-    # 画像生成
+    asyncio.create_task(
+        _generate_ai_comment(
+            db_diary.id,
+            db_diary.content,
+            db_diary.photo_url,
+            db_diary.mood,
+        )
+    )
+
+    # 画像生成（Vertex AI） ※一時無効化
     flower_image_data = None
-    try:
-        # プロンプト生成（OpenAI APIで感情分析）
-        prompt_builder = PromptBuilder()
-        prompt = prompt_builder.analyze_emotion_and_build_prompt(
-            diary_content=db_diary.content, mood=db_diary.mood
-        )
-
-        # 画像生成（Vertex AI）
-        generator = ImageGenerator()
-        image_url = await generator.generate_flower_image(
-            prompt=prompt, diary_id=db_diary.id
-        )
-
-        # 画像情報をDB保存
-        flower_image = FlowerImage(
-            diary_id=db_diary.id,
-            image_url=image_url,
-            prompt=prompt,
-        )
-        db.add(flower_image)
-        db.commit()
-        db.refresh(flower_image)
-
-        flower_image_data = {
-            "id": flower_image.id,
-            "diary_id": flower_image.diary_id,
-            "image_url": flower_image.image_url,
-            "prompt": flower_image.prompt,
-            "created_at": flower_image.created_at.isoformat(),
-        }
-
-    except Exception as e:
-        # 画像生成失敗してもエラーにしない（日記は保存済み）
-        print(f"画像生成エラー（日記は保存されました）: {str(e)}")
+    # try:
+    #     # プロンプト生成（OpenAI APIで感情分析）
+    #     prompt_builder = PromptBuilder()
+    #     prompt = prompt_builder.analyze_emotion_and_build_prompt(
+    #         diary_content=db_diary.content, mood=db_diary.mood
+    #     )
+    #
+    #     # 画像生成（Vertex AI）
+    #     generator = ImageGenerator()
+    #     image_url = await generator.generate_flower_image(
+    #         prompt=prompt, diary_id=db_diary.id
+    #     )
+    #
+    #     # 画像情報をDB保存
+    #     flower_image = FlowerImage(
+    #         diary_id=db_diary.id,
+    #         image_url=image_url,
+    #         prompt=prompt,
+    #     )
+    #     db.add(flower_image)
+    #     db.commit()
+    #     db.refresh(flower_image)
+    #
+    #     flower_image_data = {
+    #         "id": flower_image.id,
+    #         "diary_id": flower_image.diary_id,
+    #         "image_url": flower_image.image_url,
+    #         "prompt": flower_image.prompt,
+    #         "created_at": flower_image.created_at.isoformat(),
+    #     }
+    #
+    # except Exception as e:
+    #     # 画像生成失敗してもエラーにしない（日記は保存済み）
+    #     print(f"画像生成エラー（日記は保存されました）: {str(e)}")
 
     return DiaryResponse(
         id=db_diary.id,

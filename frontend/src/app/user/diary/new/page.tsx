@@ -57,7 +57,6 @@ export default function NewDiaryPage() {
   const [emotionAnalysis, setEmotionAnalysis] = useState<string | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-  const [aiComment, setAiComment] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
@@ -119,9 +118,7 @@ export default function NewDiaryPage() {
         photo_url: uploadedPhotoUrl,
       });
 
-      if (result.ai_comment) {
-        setAiComment(result.ai_comment);
-      }
+      // AIコメントはバックグラウンド生成のためここでは取得しない
 
       // 感情ログを保存（バックグラウンドで。失敗しても日記は保存済み）
       if (result.id) {
@@ -208,17 +205,10 @@ export default function NewDiaryPage() {
                 </div>
               )}
 
-              {/* AIコメント（写真・文章への返答） */}
-              {aiComment && (
-                <div className="mt-4 p-4 rounded-2xl text-left text-sm leading-relaxed bg-green-50 border border-green-200 text-green-800">
-                  <p className="font-bold mb-1">
-                    {photoFile
-                      ? "📸 写真と日記へのAIコメント"
-                      : "💬 今日の日記へのAIコメント"}
-                  </p>
-                  <p>{aiComment}</p>
-                </div>
-              )}
+              {/* AIコメントはバックグラウンド生成のため日記一覧から確認 */}
+              <div className="mt-4 p-3 rounded-2xl text-left text-xs bg-green-50 border border-green-200 text-green-700">
+                💬 AIコメントを生成中です。日記一覧から確認できます。
+              </div>
 
               <p className="text-xs text-[#c9b99a] mt-4">
                 まもなく一覧ページへ移動します...
