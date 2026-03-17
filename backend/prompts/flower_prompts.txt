@@ -1,0 +1,33 @@
+# 花の画像生成プロンプト定義ファイル
+# フォーマット: [感情キー]
+# prompt = <プロンプト文字列>
+# style_suffix はすべてのプロンプトの末尾に自動付与されるスタイル指示
+#
+# ※ 変更する場合はここを編集するだけでOK（コード変更不要）
+
+[style_suffix]
+anime illustration style, watercolor painting, soft pastel colors, hand-drawn flowers, cute and gentle art, Studio Ghibli inspired, flat design, whimsical, no text, no humans
+
+[default]
+Beautiful cherry blossom branch, soft pink petals gently falling, watercolor illustration, warm pastel tones
+
+[joy]
+Bright sunflowers in a cheerful meadow, vivid yellow petals, sunny and joyful mood, anime flower illustration
+
+[sadness]
+Delicate blue hydrangeas with tiny dewdrops, soft cool-toned watercolor, quiet melancholic beauty
+
+[calm]
+Gentle lavender field at dusk, soft purple hues, serene and dreamy watercolor illustration
+
+[anger]
+Bold red roses with dramatic deep shadows, striking crimson petals, intense hand-drawn illustration
+
+[anxiety]
+Soft white jasmine flowers in misty morning fog, ethereal watercolor, subtle and delicate mood
+
+[love]
+Romantic pink peonies with golden warm glow, tender pastel illustration, dreamy and heartfelt
+
+[excitement]
+Vivid orange and yellow tulips bursting with energy, dynamic spring garden, vibrant anime illustration
